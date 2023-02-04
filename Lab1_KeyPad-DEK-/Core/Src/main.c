@@ -46,6 +46,11 @@ PortPin R[4] =
 	{GPIOB,GPIO_PIN_3},
 	{GPIOB,GPIO_PIN_4},
 };
+/////ID Student
+uint16_t My_ID[11] = { 512, 2, 1024, 2, 8, 32, 8, 8, 8, 1, 1};
+uint16_t ID[11] = {};
+uint16_t Position_ID = 0;
+uint16_t ck_ID = 0;
 ////button press information
 uint16_t ButtonMatrix = 0;
 /////
@@ -73,6 +78,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 void ReadMatrixButton_1Row();
+void ck_number();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -124,6 +130,30 @@ int main(void)
 	  {
 		  timestamp =HAL_GetTick() + 10;
 		  ReadMatrixButton_1Row();
+		  if(ButtonMatrix == 4096)  //Clear
+		  {
+			  Position_ID = 0;
+			  register int i;
+			  for(i=0;i<11;i++) {ID[i] = 0;}
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+		  }
+		  else if(ButtonMatrix == 32768)  //OK
+		  {
+			  ck_number();
+		  }
+		  else if(ButtonMatrix == 8192)  //BS
+		  {
+			  while(ButtonMatrix != 0){ReadMatrixButton_1Row();};
+			  Position_ID--;
+			  ID[Position_ID] = 0;
+		  }
+		  else if(ButtonMatrix != 0) //Number
+		  {
+			  ID[Position_ID] = ButtonMatrix;
+			  while(ButtonMatrix != 0){ReadMatrixButton_1Row();};
+			  Position_ID++;
+//			  Position_ID%=11;
+		  }
 	  }
     /* USER CODE BEGIN 3 */
   }
@@ -293,6 +323,22 @@ void ReadMatrixButton_1Row()
 	HAL_GPIO_WritePin(R[(X+1)%4].PORT, R[(X+1)%4].PIN, 0);
 	X++;
 	X%=4;
+}
+void ck_number()
+{
+	register int i;
+	ck_ID = 0;
+	for(i=0;i<11;i++)
+	{
+		if(My_ID[i] == ID[i])
+		{
+			ck_ID++;
+		}
+	}
+	if(ck_ID == 11)
+	{
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	}
 }
 /* USER CODE END 4 */
 
