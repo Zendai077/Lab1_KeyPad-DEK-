@@ -144,6 +144,7 @@ int main(void)
 		  else if(ButtonMatrix == 8192)  //BS
 		  {
 			  while(ButtonMatrix != 0){ReadMatrixButton_1Row();};
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 			  Position_ID--;
 			  ID[Position_ID] = 0;
 		  }
