@@ -53,6 +53,7 @@ uint16_t Position_ID = 0;
 uint16_t ck_ID = 0;
 ////button press information
 uint16_t ButtonMatrix = 0;
+uint16_t ButtonMatrix_Last = 0;
 /////
 /* USER CODE END PTD */
 
@@ -130,31 +131,29 @@ int main(void)
 	  {
 		  timestamp =HAL_GetTick() + 10;
 		  ReadMatrixButton_1Row();
-		  if(ButtonMatrix == 4096)  //Clear
+		  if(ButtonMatrix_Last == 0 && ButtonMatrix == 4096)  //Clear
 		  {
 			  Position_ID = 0;
 			  register int i;
 			  for(i=0;i<11;i++) {ID[i] = 0;}
 			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 		  }
-		  else if(ButtonMatrix == 32768)  //OK
+		  else if(ButtonMatrix_Last == 0 && ButtonMatrix == 32768)  //OK
 		  {
 			  ck_number();
 		  }
-		  else if(ButtonMatrix == 8192)  //BS
+		  else if(ButtonMatrix_Last == 0 && ButtonMatrix == 8192)  //BS
 		  {
-			  while(ButtonMatrix != 0){ReadMatrixButton_1Row();};
 			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 			  Position_ID--;
 			  ID[Position_ID] = 0;
 		  }
-		  else if(ButtonMatrix != 0) //Number
+		  else if(ButtonMatrix_Last == 0 && ButtonMatrix != 0) //Number
 		  {
 			  ID[Position_ID] = ButtonMatrix;
-			  while(ButtonMatrix != 0){ReadMatrixButton_1Row();};
 			  Position_ID++;
-//			  Position_ID%=11;
 		  }
+		  ButtonMatrix_Last = ButtonMatrix;
 	  }
     /* USER CODE BEGIN 3 */
   }
